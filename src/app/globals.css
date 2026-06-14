@@ -1,26 +1,73 @@
 @import "tailwindcss";
 
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f2f0eb;
+  --foreground: rgba(0, 0, 0, 0.87);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@theme {
+  --font-sans: var(--font-manrope), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-instrument-serif), Georgia, serif;
+  
+  /* Color Palette - Seedicon Coffee Exports */
+  --color-deep-forest: #1e3932;
+  --color-export-green: #006241;
+  --color-action-green: #00754a;
+  --color-soft-green: #d4e9e2;
+  
+  --color-warm-cream: #f2f0eb;
+  --color-ceramic-beige: #edebe9;
+  
+  --color-quality-gold: #cba258;
+  --color-gold-wash: #faf6ee;
+  
+  --color-text-strong: rgba(0, 0, 0, 0.87);
+  --color-text-muted: rgba(0, 0, 0, 0.58);
+  --color-text-white-soft: rgba(255, 255, 255, 0.72);
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  min-height: 100vh;
+}
+
+@keyframes shimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-shimmer {
+  background-size: 200% auto;
+  animation: shimmer 8s ease infinite;
+}
+
+/* Lenis Smooth Scrolling Overrides */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
 }
