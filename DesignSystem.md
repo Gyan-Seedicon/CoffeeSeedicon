@@ -21,16 +21,28 @@ Avoid making the website look like a coffee shop, café menu, or lifestyle brand
 
 ## 2. Color Palette
 
-### Primary Greens
+### Primary Coffee Browns
 
-Use green as the main brand language.
+Use coffee browns as the main brand language to establish a strong coffee visual identity.
 
 | Token | Hex | Use |
 |---|---:|---|
-| Deep Forest | `#1E3932` | Dark sections, footer, premium feature bands |
-| Export Green | `#006241` | Main brand color, headings, important highlights |
-| Action Green | `#00754A` | Primary CTA buttons, links, active states |
-| Soft Green | `#D4E9E2` | Light badges, subtle cards, form states |
+| Espresso Dark | `#1F120E` | Dark sections, footer background, final headings |
+| Coffee Roast | `#4A2F22` | Brand identity, subheadings, primary CTA gradients |
+| Action Brown | `#6B4C3E` | Active interactive elements, secondary CTA gradients |
+| Latte Accent | `#B28C73` | Highlights, gradients, input ring outlines |
+| Soft Brown | `#FCF9F6` | Ultra-light background shades, card hover offsets |
+
+### Subtle Greens (Accents)
+
+Use green sparingly only as subtle indicators or status chips.
+
+| Token | Hex | Use |
+|---|---:|---|
+| Deep Forest | `#1E3932` | Secondary accent, link active states |
+| Export Green | `#006241` | Badge text, success icons, highlight labels |
+| Action Green | `#00754A` | Active step indicators, toggle checkmarks |
+| Soft Green | `#D4E9E2` | Soft badge backgrounds, success alerts, item containers |
 
 ### Warm Neutrals
 
@@ -39,7 +51,7 @@ Use warm backgrounds instead of cold white.
 | Token | Hex | Use |
 |---|---:|---|
 | Warm Cream | `#F2F0EB` | Main page background |
-| Ceramic Beige | `#DFE2DB` | Saturated, organic alternate section background |
+| Ceramic Beige | `#E5DFD7` | Saturated, organic alternate section background (warm coffee sand) |
 | White | `#FFFFFF` | Cards, forms, clean content areas |
 
 ### Accent
@@ -134,25 +146,25 @@ All buttons should be full-pill.
 
 #### Primary Button
 
-- Background: `#00754A`
+- Background: Gradient from `--color-coffee-roast` (`#4A2F22`) to `--color-action-brown` (`#6B4C3E`)
 - Text: `#FFFFFF`
 - Border radius: `999px`
 - Padding: `12px 22px`
 - Font: `Inter`, 15–16px, 600
-- Hover: slightly darker green or soft lift
+- Hover: slight scale lift (`scale(1.03)`) and subtle shadow
 - Active: `scale(0.97)`
 
 #### Secondary Button
 
 - Background: transparent
-- Text: `#00754A`
-- Border: `1px solid #00754A`
+- Text: `--color-coffee-roast` (`#4A2F22`)
+- Border: `1px solid #4A2F22`
 - Border radius: `999px`
 - Padding: `12px 22px`
 
 #### Button on Dark Section
 
-- Primary: white button with green text
+- Primary: white button with espresso text
 - Secondary: transparent button with white border
 
 ---
@@ -178,8 +190,8 @@ Cards should feel premium but not heavy.
 
 Use chips for certifications, coffee types, regions, and export markets.
 
-- Background: `#D4E9E2`
-- Text: `#006241`
+- Background: `#D4E9E2` (Soft Green) or `#FCF9F6` (Soft Brown)
+- Text: `#006241` (Export Green) or `#4A2F22` (Coffee Roast)
 - Border radius: `999px`
 - Padding: `6px 12px`
 - Font size: `13–14px`
@@ -200,8 +212,8 @@ Input style:
 - Border radius: `12px`
 - Padding: `14px 16px`
 - Font: `Inter`, 15–16px
-- Focus border: `#00754A`
-- Focus ring: soft green glow
+- Focus border: `#4A2F22` (Coffee Roast)
+- Focus ring: soft latte glow (`rgba(178, 140, 115, 0.2)`)
 
 Use clear labels above inputs. Avoid complex floating labels.
 
