@@ -39,7 +39,7 @@ Use warm backgrounds instead of cold white.
 | Token | Hex | Use |
 |---|---:|---|
 | Warm Cream | `#F2F0EB` | Main page background |
-| Ceramic Beige | `#EDEBE9` | Alternate section background |
+| Ceramic Beige | `#DFE2DB` | Saturated, organic alternate section background |
 | White | `#FFFFFF` | Cards, forms, clean content areas |
 
 ### Accent
@@ -71,7 +71,7 @@ Use Google Fonts.
 | Role | Font | Reason |
 |---|---|---|
 | Hero/Display Headings | `Instrument Serif` | Premium, editorial, calm, and refined serif |
-| Body & UI Text | `Manrope` | Clean, readable, modern sans-serif |
+| Body & UI Text | `Inter` | Clean, readable, modern sans-serif |
  
 ### Type Style
  
@@ -83,7 +83,7 @@ Suggested scale:
 | Role | Size | Weight | Line Height |
 |---|---:|---:|---:|
 | Hero Heading | 56–72px | 400 | 0.9–1.0 |
-| Section Heading | 36–48px | 400 (Serif) or 600 (Manrope) | 1.15 |
+| Section Heading | 36–48px | 400 (Serif) or 600 (Inter) | 1.15 |
 | Card Heading | 20–24px | 600 | 1.3 |
 | Body Large | 18–20px | 400/500 | 1.6 |
 | Body | 16px | 400 | 1.6 |
@@ -138,7 +138,7 @@ All buttons should be full-pill.
 - Text: `#FFFFFF`
 - Border radius: `999px`
 - Padding: `12px 22px`
-- Font: `Manrope`, 15–16px, 600
+- Font: `Inter`, 15–16px, 600
 - Hover: slightly darker green or soft lift
 - Active: `scale(0.97)`
 
@@ -199,7 +199,7 @@ Input style:
 - Border: `1px solid rgba(0,0,0,0.14)`
 - Border radius: `12px`
 - Padding: `14px 16px`
-- Font: `Manrope`, 15–16px
+- Font: `Inter`, 15–16px
 - Focus border: `#00754A`
 - Focus ring: soft green glow
 

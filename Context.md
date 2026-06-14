@@ -112,15 +112,13 @@ Use a clean timeline or step-based layout.
 
 Create a professional RFQ form with:
 
-* Company Name
-* Country
 * Contact Person
 * Email
-* WhatsApp
+* Phone Number
+* Country
 * Coffee Type
 * Quantity Required
-* Monthly Requirement
-* Destination Port
+* Export to (destination port)
 
 Primary CTA:
 

@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { LogIn, UserPlus, Play, Sparkles, Menu, X, ArrowRight, Globe, Sprout, Zap, Award, Flame, Check } from 'lucide-react';
-import BoomerangVideoBg from '@/components/BoomerangVideoBg';
 import Lenis from 'lenis';
 
 const BG_VIDEO =
-  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260511_131941_d136af49-e243-493a-be14-6ff3f24e09e6.mp4';
+  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_083109_283f3553-e28f-428b-a723-d639c617eb2b.mp4';
 
 const processSteps = [
   {
@@ -73,6 +72,64 @@ const processSteps = [
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    let animationFrameId: number;
+    let delayTimeoutId: NodeJS.Timeout;
+
+    const checkLoop = () => {
+      if (!video) return;
+      const currentTime = video.currentTime;
+      const duration = video.duration;
+
+      if (duration > 0) {
+        if (currentTime < 0.5) {
+          video.style.opacity = (currentTime / 0.5).toString();
+        } else if (duration - currentTime < 0.5) {
+          video.style.opacity = Math.max(0, (duration - currentTime) / 0.5).toString();
+        } else {
+          video.style.opacity = "1";
+        }
+      }
+      animationFrameId = requestAnimationFrame(checkLoop);
+    };
+
+    const handleEnded = () => {
+      video.style.opacity = "0";
+      video.pause();
+      delayTimeoutId = setTimeout(() => {
+        video.currentTime = 0;
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise.catch((err) => console.log("Video replay prevented:", err));
+        }
+      }, 100);
+    };
+
+    video.addEventListener('ended', handleEnded);
+    
+    video.src = BG_VIDEO;
+    video.load();
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.catch((err) => console.log("Video play prevented:", err));
+    }
+
+    animationFrameId = requestAnimationFrame(checkLoop);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      clearTimeout(delayTimeoutId);
+      if (video) {
+        video.removeEventListener('ended', handleEnded);
+        video.pause();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const lenis = new Lenis({
@@ -128,6 +185,16 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [isHoveredProcess]);
 
+  // RFQ Form States
+  const [rfqName, setRfqName] = useState('');
+  const [rfqEmail, setRfqEmail] = useState('');
+  const [rfqPhone, setRfqPhone] = useState('');
+  const [rfqLocation, setRfqLocation] = useState('');
+  const [rfqCoffeeType, setRfqCoffeeType] = useState('');
+  const [rfqQuantity, setRfqQuantity] = useState('');
+  const [rfqCountry, setRfqCountry] = useState('');
+  const [rfqSubmitted, setRfqSubmitted] = useState(false);
+
   const navLinks = [
     { href: '#sourcing', label: 'Sourcing' },
     { href: '#products', label: 'Coffee Products' },
@@ -138,178 +205,148 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-warm-cream selection:bg-soft-green selection:text-deep-forest">
       {/* Hero Section (Full Screen) */}
-      <section className="relative w-full h-screen overflow-hidden font-sans">
-        {/* Boomerang Video Background */}
-        <BoomerangVideoBg src={BG_VIDEO} className="absolute inset-0 w-full h-full" />
-        
-        {/* Dark overlay to ensure contrast for text and controls */}
-        <div className="absolute inset-0 bg-black/10 z-0" />
+      <section className="relative w-full h-screen overflow-hidden font-sans bg-white">
+        {/* Cinematic Video Background */}
+        <div className="absolute inset-x-0 bottom-0 top-[300px] z-0 overflow-hidden">
+          <video
+            ref={videoRef}
+            className="w-full h-full object-cover opacity-0 pointer-events-none"
+            muted
+            playsInline
+            preload="auto"
+          />
+          {/* Top blend gradient to match white background */}
+          <div className="absolute top-0 left-0 right-0 h-32 bg-linear-to-b from-white to-transparent z-10 pointer-events-none" />
+          {/* Bottom blend gradient to match next section background (ceramic-beige) */}
+          <div className="absolute bottom-0 left-0 right-0 h-64 bg-linear-to-t from-ceramic-beige to-transparent z-10 pointer-events-none" />
+        </div>
 
-        {/* Navigation */}
-        <nav className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-4 sm:px-6 md:px-10 py-4 sm:py-6">
-          <div className="flex items-center gap-2 text-deep-forest">
-            <span className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight font-sans">
-              Seedicon<sup className="text-[10px] sm:text-xs font-semibold">TM</sup>
+        {/* Navigation Bar */}
+        <nav className="relative z-10 px-8 py-6 max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2 text-black">
+            <span className="text-3xl tracking-tight font-display text-black">
+              Seedicon<sup className="text-sm font-normal">TM</sup>
             </span>
           </div>
 
-          {/* Desktop Navigation Link Pill (Absolutely Centered) */}
-          <div className="absolute left-1/2 -translate-x-1/2 hidden lg:flex items-center gap-1 bg-white/70 backdrop-blur-md rounded-full pl-6 pr-1 py-1 shadow-sm border border-white/60">
-            {navLinks.map((link, i) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className={`text-sm px-3 py-2 transition-colors ${
-                  i === 0 ? 'font-bold text-deep-forest' : 'font-medium text-export-green hover:text-deep-forest'
-                }`}
-              >
-                {link.label}
-              </a>
-            ))}
+          {/* Desktop Navigation Links */}
+          <div className="hidden md:flex items-center gap-8">
+            <a href="#about" className="text-sm font-medium text-black transition-colors hover:text-black">
+              Sourcing
+            </a>
+            <a href="#products" className="text-sm font-medium text-[#6F6F6F] transition-colors hover:text-black">
+              Coffee Products
+            </a>
+            <a href="#quality" className="text-sm font-medium text-[#6F6F6F] transition-colors hover:text-black">
+              Quality QA
+            </a>
+            <a href="#process" className="text-sm font-medium text-[#6F6F6F] transition-colors hover:text-black">
+              Export Process
+            </a>
+          </div>
+
+          {/* Desktop CTA Button */}
+          <div className="hidden md:block">
             <a
               href="#rfq"
-              className="ml-2 bg-action-green hover:bg-export-green text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-colors"
+              className="bg-linear-to-r from-export-green to-action-green hover:scale-103 text-white text-sm font-semibold px-6 py-2.5 rounded-full transition-all duration-300 inline-block shadow-sm shadow-action-green/10"
             >
               Get Pricing
             </a>
           </div>
 
-          {/* Top Right Quick Actions */}
-          <div className="flex items-center gap-3 sm:gap-6 text-deep-forest">
-            <a href="#sample" className="hidden sm:flex items-center gap-2 text-sm font-semibold hover:opacity-80 transition-opacity">
-              <UserPlus className="w-4 h-4" />
-              Request Sample
-            </a>
-            <a href="#rfq" className="hidden sm:flex items-center gap-2 text-sm font-semibold hover:opacity-80 transition-opacity">
-              <Globe className="w-4 h-4" />
-              Submit RFQ
-            </a>
-            
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setMenuOpen((v) => !v)}
-              className="lg:hidden relative flex items-center justify-center w-10 h-10 rounded-full bg-white/70 backdrop-blur-md border border-white/60 text-deep-forest transition-all duration-300 hover:bg-white/90 cursor-pointer"
-              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-              aria-expanded={menuOpen}
-            >
-              <Menu
-                className={`w-5 h-5 absolute transition-all duration-300 ${
-                  menuOpen ? 'opacity-0 rotate-90 scale-50' : 'opacity-100 rotate-0 scale-100'
-                }`}
-              />
-              <X
-                className={`w-5 h-5 absolute transition-all duration-300 ${
-                  menuOpen ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-50'
-                }`}
-              />
-            </button>
-          </div>
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            className="md:hidden relative flex items-center justify-center w-10 h-10 rounded-full border border-black/10 bg-transparent text-black hover:bg-black/5 hover:border-black/20 transition-all duration-300 cursor-pointer"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+          >
+            <Menu
+              className={`w-[18px] h-[18px] absolute transition-all duration-300 ${
+                menuOpen ? 'opacity-0 rotate-90 scale-50' : 'opacity-100 rotate-0 scale-100'
+              }`}
+            />
+            <X
+              className={`w-[18px] h-[18px] absolute transition-all duration-300 ${
+                menuOpen ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-50'
+              }`}
+            />
+          </button>
         </nav>
 
         {/* Mobile menu overlay */}
         <div
-          className={`lg:hidden fixed inset-0 z-20 transition-opacity duration-300 ${
+          className={`md:hidden fixed inset-0 z-20 transition-opacity duration-300 ${
             menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
           }`}
           onClick={() => setMenuOpen(false)}
         >
-          <div className="absolute inset-0 bg-deep-forest/40 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
         </div>
 
         {/* Mobile menu drawer */}
         <div
-          className={`lg:hidden fixed top-0 right-0 bottom-0 z-20 w-[85%] max-w-sm bg-white/95 backdrop-blur-xl shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          className={`md:hidden fixed top-0 right-0 bottom-0 z-20 w-[85%] max-w-sm bg-white/95 backdrop-blur-xl shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
             menuOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
         >
-          <div className="flex flex-col h-full pt-24 px-8 pb-8">
+          <div className="flex flex-col h-full pt-16 px-8 pb-8">
             <div className="flex flex-col gap-1">
-              {navLinks.map((link, i) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMenuOpen(false)}
-                  className={`text-2xl font-bold text-deep-forest py-4 border-b border-deep-forest/10 transition-all duration-500 ${
-                    menuOpen ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0'
-                  }`}
-                  style={{ transitionDelay: menuOpen ? `${150 + i * 70}ms` : '0ms' }}
-                >
-                  {link.label}
-                </a>
-              ))}
+              <a href="#about" onClick={() => setMenuOpen(false)} className="text-xl font-normal text-black py-4 border-b border-black/5 transition-colors">
+                Sourcing
+              </a>
+              <a href="#products" onClick={() => setMenuOpen(false)} className="text-xl font-normal text-[#6F6F6F] hover:text-black py-4 border-b border-black/5 transition-colors">
+                Coffee Products
+              </a>
+              <a href="#quality" onClick={() => setMenuOpen(false)} className="text-xl font-normal text-[#6F6F6F] hover:text-black py-4 border-b border-black/5 transition-colors">
+                Quality QA
+              </a>
+              <a href="#process" onClick={() => setMenuOpen(false)} className="text-xl font-normal text-[#6F6F6F] hover:text-black py-4 border-b border-black/5 transition-colors">
+                Export Process
+              </a>
             </div>
 
-            <div
-              className={`mt-8 flex flex-col gap-4 transition-all duration-500 ${
-                menuOpen ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0'
-              }`}
-              style={{ transitionDelay: menuOpen ? '400ms' : '0ms' }}
-            >
-              <a href="#sample" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 text-sm font-semibold text-deep-forest sm:hidden">
-                <UserPlus className="w-4 h-4" />
-                Request Sample
-              </a>
-              <a href="#rfq" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 text-sm font-semibold text-deep-forest sm:hidden">
-                <Globe className="w-4 h-4" />
-                Submit RFQ
-              </a>
-              <a href="#rfq" onClick={() => setMenuOpen(false)} className="mt-2 text-center bg-action-green hover:bg-export-green text-white text-sm font-bold px-5 py-3 rounded-full transition-colors">
-                Get Export Pricing
+            <div className="mt-8 flex flex-col gap-4">
+              <a href="#rfq" onClick={() => setMenuOpen(false)} className="text-center bg-linear-to-r from-export-green to-action-green hover:scale-103 text-white text-sm font-semibold px-5 py-3 rounded-full transition-all duration-300 shadow-sm shadow-action-green/10">
+                Get Pricing
               </a>
             </div>
           </div>
         </div>
 
-        {/* Hero Copy (Centered) */}
-        <div className="relative z-10 flex flex-col items-center text-center pt-24 sm:pt-28 md:pt-32 px-4 sm:px-6">
+        {/* Hero Section Copy */}
+        <div 
+          className="relative z-10 flex flex-col items-center justify-center text-center px-6"
+          style={{ paddingTop: 'calc(8rem - 75px)', paddingBottom: '10rem' }}
+        >
           <h1
-            className="font-normal leading-[0.95] text-[2rem] sm:text-3xl md:text-4xl lg:text-[3.75rem] xl:text-[4.25rem] max-w-5xl font-display text-deep-forest"
-            style={{ letterSpacing: '-0.04em' }}
+            className="font-normal leading-[0.95] text-5xl sm:text-6xl md:text-7xl max-w-7xl font-display text-black animate-fade-rise"
+            style={{ letterSpacing: '-2.46px' }}
           >
-            Premium Indian Coffee{' '}
-            <span className="bg-gradient-to-r from-export-green via-action-green via-[#85AB8B] to-export-green bg-clip-text text-transparent animate-shimmer">
-              Connecting
-              <br className="hidden sm:block" /> Global Markets
-            </span>
+            <span className="bg-linear-to-r from-export-green via-action-green to-deep-forest bg-clip-text text-transparent">
+              Premium Indian Coffee
+            </span>{' '}
+            <span className="text-[#6F6F6F] italic">Connecting</span>
+            <br className="hidden sm:block" />{' '}
+            <span className="text-[#6F6F6F] italic">Global Markets</span>
           </h1>
-          <p className="mt-6 sm:mt-8 text-text-muted text-sm sm:text-base md:text-lg leading-relaxed max-w-lg px-2 font-medium">
+          <p className="mt-8 text-[#6F6F6F] text-base sm:text-lg leading-relaxed max-w-2xl animate-fade-rise-delay">
             Sourcing and exporting top-grade Arabica, Robusta, and specialty coffee beans directly from India's finest estates to global roasters.
           </p>
-        </div>
-
-        {/* Bottom-left B2B Info Card */}
-        <div className="absolute left-4 right-4 sm:right-auto sm:left-6 md:left-10 bottom-6 sm:bottom-8 md:bottom-10 z-10 max-w-sm">
-          <div className="flex items-center gap-2 text-deep-forest sm:text-white mb-3">
-            <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-bold sm:font-semibold">
-              Export Desk<sup className="text-[10px]">TM</sup>
-            </span>
-          </div>
-          <p className="text-text-muted sm:text-text-white-soft text-xs leading-relaxed mb-6 max-w-xs font-semibold sm:font-normal">
-            Seedicon smoothly coordinates farm sourcing with international container loading, handling moisture testing, custom sorting, and all phytosanitary documentation.
-          </p>
-          <div className="flex items-center gap-4 flex-wrap">
-            <a href="#rfq" className="bg-action-green sm:bg-white hover:bg-export-green sm:hover:bg-white/90 text-white sm:text-deep-forest text-sm font-bold px-5 sm:px-6 py-2.5 sm:py-3 rounded-full transition-colors shadow-sm">
+          <div>
+            <a
+              href="#rfq"
+              className="bg-linear-to-r from-export-green to-action-green hover:scale-103 hover:shadow-lg text-white text-sm sm:text-base font-semibold px-8 py-3.5 sm:px-14 sm:py-5 rounded-full transition-all duration-300 inline-block mt-12 animate-fade-rise-delay-2 shadow-md shadow-action-green/20"
+            >
               Get Export Pricing
             </a>
-            <a href="#sample" className="text-deep-forest sm:text-white text-sm font-bold sm:font-semibold hover:opacity-80 transition-opacity">
-              Request Sample.
-            </a>
           </div>
-        </div>
-
-        {/* Bottom-right video link */}
-        <div className="hidden sm:flex absolute right-6 md:right-10 bottom-8 md:bottom-10 z-10 items-center gap-2 text-white/90 text-sm">
-          <button className="flex items-center justify-center w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors cursor-pointer">
-            <Play className="w-3 h-3 fill-white text-white ml-0.5" />
-          </button>
-          <span className="font-semibold">Sourcing & Sacks</span>
-          <span className="text-white/60">1:35</span>
         </div>
       </section>
 
       {/* About Us Section */}
-      <section id="about" className="py-24 bg-ceramic-beige text-text-strong font-sans border-t border-black/[0.04]">
+      <section id="about" className="py-24 bg-ceramic-beige text-text-strong font-sans border-t border-black/4">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-10 grid lg:grid-cols-12 gap-16 items-center">
           
           {/* Column 1: Sourcing info & grid highlight */}
@@ -336,13 +373,13 @@ export default function Home() {
           {/* Column 2: Coffee estate photo panel */}
           <div className="lg:col-span-5">
             <div className="relative group">
-              <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden border border-black/[0.06] bg-ceramic-beige">
+              <div className="relative aspect-4/5 w-full rounded-2xl overflow-hidden border border-black/6 bg-ceramic-beige">
                 <img
                   src="/images/about-plantation.png"
                   alt="Lush coffee estate under forest canopy in Coorg, India"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/45 via-black/10 to-transparent pointer-events-none" />
                 
                 {/* Floating overlay badge on image */}
                 <div className="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur-md p-4 rounded-xl border border-white/40 flex items-center justify-between shadow-sm">
@@ -363,7 +400,7 @@ export default function Home() {
       </section>
 
       {/* 3. Coffee Products Section */}
-      <section id="products" className="py-24 bg-warm-cream text-text-strong font-sans border-t border-black/[0.04]">
+      <section id="products" className="py-24 bg-warm-cream text-text-strong font-sans border-t border-black/4">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-10">
           
           {/* Section Header */}
@@ -385,7 +422,7 @@ export default function Home() {
               href="#rfq"
               className="group block cursor-pointer"
             >
-              <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-ceramic-beige border border-black/[0.03] shadow-[0_1px_2px_rgba(0,0,0,0.03),0_6px_20px_rgba(0,0,0,0.04)] transition-all duration-500 group-hover:-translate-y-1.5 group-hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)]">
+              <div className="relative aspect-4/5 w-full overflow-hidden rounded-2xl bg-ceramic-beige border border-black/3 shadow-[0_1px_2px_rgba(0,0,0,0.03),0_6px_20px_rgba(0,0,0,0.04)] transition-all duration-500 group-hover:-translate-y-1.5 group-hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)]">
                 <img
                   src="/images/Arabica Coffee.png"
                   alt="Arabica Coffee"
@@ -405,7 +442,7 @@ export default function Home() {
               href="#rfq"
               className="group block cursor-pointer"
             >
-              <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-ceramic-beige border border-black/[0.03] shadow-[0_1px_2px_rgba(0,0,0,0.03),0_6px_20px_rgba(0,0,0,0.04)] transition-all duration-500 group-hover:-translate-y-1.5 group-hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)]">
+              <div className="relative aspect-4/5 w-full overflow-hidden rounded-2xl bg-ceramic-beige border border-black/3 shadow-[0_1px_2px_rgba(0,0,0,0.03),0_6px_20px_rgba(0,0,0,0.04)] transition-all duration-500 group-hover:-translate-y-1.5 group-hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)]">
                 <img
                   src="/images/Robusta.png"
                   alt="Robusta Coffee"
@@ -425,7 +462,7 @@ export default function Home() {
               href="#rfq"
               className="group block cursor-pointer"
             >
-              <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-ceramic-beige border border-black/[0.03] shadow-[0_1px_2px_rgba(0,0,0,0.03),0_6px_20px_rgba(0,0,0,0.04)] transition-all duration-500 group-hover:-translate-y-1.5 group-hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)]">
+              <div className="relative aspect-4/5 w-full overflow-hidden rounded-2xl bg-ceramic-beige border border-black/3 shadow-[0_1px_2px_rgba(0,0,0,0.03),0_6px_20px_rgba(0,0,0,0.04)] transition-all duration-500 group-hover:-translate-y-1.5 group-hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)]">
                 <img
                   src="/images/Specialty.png"
                   alt="Specialty Coffee"
@@ -445,7 +482,7 @@ export default function Home() {
               href="#rfq"
               className="group block cursor-pointer"
             >
-              <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-ceramic-beige border border-black/[0.03] shadow-[0_1px_2px_rgba(0,0,0,0.03),0_6px_20px_rgba(0,0,0,0.04)] transition-all duration-500 group-hover:-translate-y-1.5 group-hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)]">
+              <div className="relative aspect-4/5 w-full overflow-hidden rounded-2xl bg-ceramic-beige border border-black/3 shadow-[0_1px_2px_rgba(0,0,0,0.03),0_6px_20px_rgba(0,0,0,0.04)] transition-all duration-500 group-hover:-translate-y-1.5 group-hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)]">
                 <img
                   src="/images/Green.png"
                   alt="Green Coffee Beans"
@@ -465,7 +502,7 @@ export default function Home() {
               href="#rfq"
               className="group block cursor-pointer"
             >
-              <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-ceramic-beige border border-black/[0.03] shadow-[0_1px_2px_rgba(0,0,0,0.06),0_8px_24px_rgba(0,0,0,0.06)] transition-all duration-500 group-hover:-translate-y-1.5 group-hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)]">
+              <div className="relative aspect-4/5 w-full overflow-hidden rounded-2xl bg-ceramic-beige border border-black/3 shadow-[0_1px_2px_rgba(0,0,0,0.06),0_8px_24px_rgba(0,0,0,0.06)] transition-all duration-500 group-hover:-translate-y-1.5 group-hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)]">
                 <img
                   src="/images/Roasted .png"
                   alt="Roasted Coffee"
@@ -486,7 +523,7 @@ export default function Home() {
       </section>
 
       {/* 4. Sourcing & Origin Section */}
-      <section id="sourcing" className="py-24 bg-ceramic-beige text-text-strong font-sans border-t border-black/[0.04]">
+      <section id="sourcing" className="py-24 bg-ceramic-beige text-text-strong font-sans border-t border-black/4">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-10">
           
           {/* Section Header */}
@@ -508,14 +545,14 @@ export default function Home() {
             {/* Region 1: Coorg */}
             <a
               href="#rfq"
-              className="group block cursor-pointer relative rounded-2xl overflow-hidden aspect-[3/4] border border-black/[0.03] shadow-[0_1px_2px_rgba(0,0,0,0.03),0_6px_20px_rgba(0,0,0,0.04)] hover:-translate-y-1.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)] transition-all duration-500"
+              className="group block cursor-pointer relative rounded-2xl overflow-hidden aspect-3/4 border border-black/3 shadow-[0_1px_2px_rgba(0,0,0,0.03),0_6px_20px_rgba(0,0,0,0.04)] hover:-translate-y-1.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)] transition-all duration-500"
             >
               <img
                 src="/images/origin-coorg.png"
                 alt="Coorg region"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 via-50% to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/95 via-black/70 via-50% to-transparent pointer-events-none" />
               
               <div className="absolute inset-0 p-5 flex flex-col justify-end text-white">
                 {/* Default Title State */}
@@ -561,14 +598,14 @@ export default function Home() {
             {/* Region 2: Chikmagalur */}
             <a
               href="#rfq"
-              className="group block cursor-pointer relative rounded-2xl overflow-hidden aspect-[3/4] border border-black/[0.03] shadow-[0_1px_2px_rgba(0,0,0,0.03),0_6px_20px_rgba(0,0,0,0.04)] hover:-translate-y-1.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)] transition-all duration-500"
+              className="group block cursor-pointer relative rounded-2xl overflow-hidden aspect-3/4 border border-black/3 shadow-[0_1px_2px_rgba(0,0,0,0.03),0_6px_20px_rgba(0,0,0,0.04)] hover:-translate-y-1.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)] transition-all duration-500"
             >
               <img
                 src="/images/origin-chikmagalur.png"
                 alt="Chikmagalur region"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 via-50% to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/95 via-black/70 via-50% to-transparent pointer-events-none" />
               
               <div className="absolute inset-0 p-5 flex flex-col justify-end text-white">
                 {/* Default Title State */}
@@ -614,14 +651,14 @@ export default function Home() {
             {/* Region 3: Wayanad */}
             <a
               href="#rfq"
-              className="group block cursor-pointer relative rounded-2xl overflow-hidden aspect-[3/4] border border-black/[0.03] shadow-[0_1px_2px_rgba(0,0,0,0.03),0_6px_20px_rgba(0,0,0,0.04)] hover:-translate-y-1.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)] transition-all duration-500"
+              className="group block cursor-pointer relative rounded-2xl overflow-hidden aspect-3/4 border border-black/3 shadow-[0_1px_2px_rgba(0,0,0,0.03),0_6px_20px_rgba(0,0,0,0.04)] hover:-translate-y-1.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)] transition-all duration-500"
             >
               <img
                 src="/images/origin-wayanad.png"
                 alt="Wayanad region"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 via-50% to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/95 via-black/70 via-50% to-transparent pointer-events-none" />
               
               <div className="absolute inset-0 p-5 flex flex-col justify-end text-white">
                 {/* Default Title State */}
@@ -667,14 +704,14 @@ export default function Home() {
             {/* Region 4: Araku Valley */}
             <a
               href="#rfq"
-              className="group block cursor-pointer relative rounded-2xl overflow-hidden aspect-[3/4] border border-black/[0.03] shadow-[0_1px_2px_rgba(0,0,0,0.03),0_6px_20px_rgba(0,0,0,0.04)] hover:-translate-y-1.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)] transition-all duration-500"
+              className="group block cursor-pointer relative rounded-2xl overflow-hidden aspect-3/4 border border-black/3 shadow-[0_1px_2px_rgba(0,0,0,0.03),0_6px_20px_rgba(0,0,0,0.04)] hover:-translate-y-1.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)] transition-all duration-500"
             >
               <img
                 src="/images/origin-araku.png"
                 alt="Araku Valley region"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 via-50% to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/95 via-black/70 via-50% to-transparent pointer-events-none" />
               
               <div className="absolute inset-0 p-5 flex flex-col justify-end text-white">
                 {/* Default Title State */}
@@ -723,7 +760,7 @@ export default function Home() {
       </section>
 
       {/* 5. Quality & Certifications Section */}
-      <section id="quality" className="py-24 bg-warm-cream text-text-strong font-sans border-t border-black/[0.04]">
+      <section id="quality" className="py-24 bg-warm-cream text-text-strong font-sans border-t border-black/4">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-10">
           
           {/* Section Header */}
@@ -743,7 +780,7 @@ export default function Home() {
             
             {/* Left Column: Visual Laboratory QC Focus (Cross-fading slideshow) */}
             <div className="lg:col-span-5 relative self-stretch min-h-[450px] lg:min-h-0">
-              <div className="absolute inset-0 w-full h-full rounded-2xl overflow-hidden border border-black/[0.06] bg-ceramic-beige shadow-md">
+              <div className="absolute inset-0 w-full h-full rounded-2xl overflow-hidden border border-black/6 bg-ceramic-beige shadow-md">
                 {/* Step 1: Grading */}
                 <img
                   src="/images/qc-grading.png"
@@ -784,7 +821,7 @@ export default function Home() {
                     activeStep === 4 ? 'opacity-100 z-10' : 'opacity-0 z-0'
                   }`}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent pointer-events-none z-20" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/45 via-transparent to-transparent pointer-events-none z-20" />
               </div>
             </div>
 
@@ -800,7 +837,7 @@ export default function Home() {
                 {/* Step 1 */}
                 <div 
                   className={`flex gap-4 group cursor-pointer border-l-2 pl-4 py-2 transition-all duration-300 ${
-                    activeStep === 0 ? 'border-action-green bg-action-green/[0.02]' : 'border-transparent hover:border-black/10'
+                    activeStep === 0 ? 'border-action-green bg-action-green/2' : 'border-transparent hover:border-black/10'
                   }`}
                   onMouseEnter={() => setActiveStep(0)}
                 >
@@ -826,7 +863,7 @@ export default function Home() {
                 {/* Step 2 */}
                 <div 
                   className={`flex gap-4 group cursor-pointer border-l-2 pl-4 py-2 transition-all duration-300 ${
-                    activeStep === 1 ? 'border-action-green bg-action-green/[0.02]' : 'border-transparent hover:border-black/10'
+                    activeStep === 1 ? 'border-action-green bg-action-green/2' : 'border-transparent hover:border-black/10'
                   }`}
                   onMouseEnter={() => setActiveStep(1)}
                 >
@@ -852,7 +889,7 @@ export default function Home() {
                 {/* Step 3 */}
                 <div 
                   className={`flex gap-4 group cursor-pointer border-l-2 pl-4 py-2 transition-all duration-300 ${
-                    activeStep === 2 ? 'border-action-green bg-action-green/[0.02]' : 'border-transparent hover:border-black/10'
+                    activeStep === 2 ? 'border-action-green bg-action-green/2' : 'border-transparent hover:border-black/10'
                   }`}
                   onMouseEnter={() => setActiveStep(2)}
                 >
@@ -878,7 +915,7 @@ export default function Home() {
                 {/* Step 4 */}
                 <div 
                   className={`flex gap-4 group cursor-pointer border-l-2 pl-4 py-2 transition-all duration-300 ${
-                    activeStep === 3 ? 'border-action-green bg-action-green/[0.02]' : 'border-transparent hover:border-black/10'
+                    activeStep === 3 ? 'border-action-green bg-action-green/2' : 'border-transparent hover:border-black/10'
                   }`}
                   onMouseEnter={() => setActiveStep(3)}
                 >
@@ -904,7 +941,7 @@ export default function Home() {
                 {/* Step 5 */}
                 <div 
                   className={`flex gap-4 group cursor-pointer border-l-2 pl-4 py-2 transition-all duration-300 ${
-                    activeStep === 4 ? 'border-action-green bg-action-green/[0.02]' : 'border-transparent hover:border-black/10'
+                    activeStep === 4 ? 'border-action-green bg-action-green/2' : 'border-transparent hover:border-black/10'
                   }`}
                   onMouseEnter={() => setActiveStep(4)}
                 >
@@ -932,33 +969,87 @@ export default function Home() {
           </div>
 
           {/* Certifications Section */}
-          <div className="border-t border-black/[0.06] pt-8 mt-12">
-            <span className="text-xs font-bold text-deep-forest uppercase tracking-wider block mb-3">
+          <div className="border-t border-black/6 pt-12 mt-16 text-center">
+            <span className="text-xs font-bold text-deep-forest uppercase tracking-widest block mb-8">
               Export Certifications & Credentials
             </span>
-            <div className="flex flex-wrap gap-2">
-              <span className="border border-quality-gold/25 bg-gold-wash text-quality-gold text-xs font-semibold px-3.5 py-1.5 rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.02)] transition-transform duration-300 hover:-translate-y-0.5">
-                FSSAI Certified
-              </span>
-              <span className="border border-quality-gold/25 bg-gold-wash text-quality-gold text-xs font-semibold px-3.5 py-1.5 rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.02)] transition-transform duration-300 hover:-translate-y-0.5">
-                APEDA Licensed
-              </span>
-              <span className="border border-quality-gold/25 bg-gold-wash text-quality-gold text-xs font-semibold px-3.5 py-1.5 rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.02)] transition-transform duration-300 hover:-translate-y-0.5">
-                Organic Certified
-              </span>
-              <span className="border border-quality-gold/25 bg-gold-wash text-quality-gold text-xs font-semibold px-3.5 py-1.5 rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.02)] transition-transform duration-300 hover:-translate-y-0.5">
-                Fair Trade
-              </span>
-              <span className="border border-quality-gold/25 bg-gold-wash text-quality-gold text-xs font-semibold px-3.5 py-1.5 rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.02)] transition-transform duration-300 hover:-translate-y-0.5">
-                Rainforest Alliance
-              </span>
+            <div className="flex flex-wrap justify-center gap-8 md:gap-12">
+              {/* FSSAI */}
+              <div className="flex flex-col items-center gap-2.5 group">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border border-black/6 shadow-sm flex items-center justify-center p-3.5 transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-md">
+                  <img
+                    src="/images/Certifications/Fssai.webp"
+                    alt="FSSAI"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <span className="text-[11px] font-bold text-deep-forest transition-colors duration-300 group-hover:text-action-green">
+                  FSSAI Certified
+                </span>
+              </div>
+
+              {/* APEDA */}
+              <div className="flex flex-col items-center gap-2.5 group">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border border-black/6 shadow-sm flex items-center justify-center p-3.5 transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-md">
+                  <img
+                    src="/images/Certifications/Apeda.webp"
+                    alt="APEDA"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <span className="text-[11px] font-bold text-deep-forest transition-colors duration-300 group-hover:text-action-green">
+                  APEDA Licensed
+                </span>
+              </div>
+
+              {/* Organic */}
+              <div className="flex flex-col items-center gap-2.5 group">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border border-black/6 shadow-sm flex items-center justify-center p-3.5 transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-md">
+                  <img
+                    src="/images/Certifications/Organic.webp"
+                    alt="Organic Certification"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <span className="text-[11px] font-bold text-deep-forest transition-colors duration-300 group-hover:text-action-green">
+                  Organic Certified
+                </span>
+              </div>
+
+              {/* Fair Trade */}
+              <div className="flex flex-col items-center gap-2.5 group">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border border-black/6 shadow-sm flex items-center justify-center p-3.5 transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-md">
+                  <img
+                    src="/images/Certifications/Fairtrade.png"
+                    alt="Fair Trade"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <span className="text-[11px] font-bold text-deep-forest transition-colors duration-300 group-hover:text-action-green">
+                  Fair Trade
+                </span>
+              </div>
+
+              {/* Rainforest Alliance */}
+              <div className="flex flex-col items-center gap-2.5 group">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border border-black/6 shadow-sm flex items-center justify-center p-3.5 transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-md">
+                  <img
+                    src="/images/Certifications/Rainforest.webp"
+                    alt="Rainforest Alliance"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <span className="text-[11px] font-bold text-deep-forest transition-colors duration-300 group-hover:text-action-green">
+                  Rainforest Alliance
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* 6. Export Process Section */}
-      <section id="process" className="py-24 bg-ceramic-beige text-text-strong font-sans border-t border-black/[0.04]">
+      <section id="process" className="py-24 bg-ceramic-beige text-text-strong font-sans border-t border-black/4">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-10">
           
           {/* Section Header */}
@@ -974,179 +1065,374 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Linear Horizontal/Vertical Stepper Progress */}
-          <div 
-            className="mb-16 relative"
-            onMouseEnter={() => setIsHoveredProcess(true)}
-            onMouseLeave={() => setIsHoveredProcess(false)}
-          >
-            {/* Desktop Horizontal Stepper */}
-            <div className="hidden md:block relative py-8">
-              {/* Stepper Line Track (Gray background) */}
-              <div className="absolute left-[3%] right-[3%] top-1/2 -translate-y-1/2 h-0.5 bg-black/[0.06] z-0" />
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-stretch">
+            
+            {/* Left Column: QA Processes (Timeline Steps) */}
+            <div className="lg:col-span-7 flex flex-col justify-between py-1">
               
-              {/* Stepper Progress Fill Line (Animated Gradient) */}
+              {/* QA Timeline Steps */}
               <div 
-                className="absolute left-[3%] top-1/2 -translate-y-1/2 h-0.5 bg-gradient-to-r from-export-green to-action-green transition-all duration-700 ease-out z-0"
-                style={{ 
-                  width: `${(activeProcessStep / 5) * 94}%` 
-                }}
-              />
-
-              {/* Stepper Nodes */}
-              <div className="relative flex justify-between items-center z-10 px-0">
-                {processSteps.map((step, idx) => {
-                  const isCompleted = idx < activeProcessStep;
-                  const isActive = idx === activeProcessStep;
-                  
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => setActiveProcessStep(idx)}
-                      className="flex flex-col items-center focus:outline-none group cursor-pointer w-[16%]"
-                    >
-                      {/* Node Circle */}
-                      <div className={`w-8 h-8 rounded-full border flex items-center justify-center font-sans text-xs font-bold transition-all duration-500 shadow-sm ${
-                        isCompleted 
-                          ? "bg-action-green border-action-green text-white scale-100" 
-                          : isActive 
-                            ? "bg-white border-action-green text-action-green scale-110 ring-2 ring-soft-green" 
-                            : "bg-white border-black/[0.08] text-text-muted hover:border-black/20"
+                className="space-y-4"
+                onMouseEnter={() => setIsHoveredProcess(true)}
+                onMouseLeave={() => setIsHoveredProcess(false)}
+              >
+                {processSteps.map((step, idx) => (
+                  <div 
+                    key={idx}
+                    className={`flex gap-4 group cursor-pointer border-l-2 pl-4 py-2 transition-all duration-300 ${
+                      activeProcessStep === idx ? 'border-action-green bg-action-green/2' : 'border-transparent hover:border-black/10'
+                    }`}
+                    onMouseEnter={() => setActiveProcessStep(idx)}
+                  >
+                    <div className="flex flex-col items-center shrink-0">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all duration-300 ${
+                        activeProcessStep === idx ? 'bg-action-green text-white scale-105' : 'bg-soft-green/60 text-export-green'
                       }`}>
-                        {isCompleted ? (
-                          <Check className="w-4 h-4 text-white stroke-[3px]" />
-                        ) : (
-                          <span>{idx + 1}</span>
-                        )}
+                        {idx + 1}
                       </div>
-                      
-                      {/* Node Label */}
-                      <span className={`text-[11px] font-sans font-bold mt-3 transition-colors duration-300 text-center px-1 truncate w-full ${
-                        isActive ? "text-action-green" : "text-deep-forest/70 group-hover:text-deep-forest"
+                    </div>
+                    <div>
+                      <h4 className={`font-sans font-semibold text-base transition-colors duration-300 ${
+                        activeProcessStep === idx ? 'text-deep-forest font-bold' : 'text-deep-forest/70'
                       }`}>
                         {step.title}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Mobile Vertical Stepper */}
-            <div className="md:hidden relative pl-8 py-4">
-              {/* Vertical line track */}
-              <div className="absolute left-[15px] top-4 bottom-4 w-0.5 bg-black/[0.06] z-0" />
-              
-              {/* Vertical progress fill */}
-              <div 
-                className="absolute left-[15px] top-4 w-0.5 bg-gradient-to-b from-export-green to-action-green transition-all duration-700 ease-out z-0"
-                style={{ 
-                  height: `${(activeProcessStep / 5) * 100}%` 
-                }}
-              />
-
-              {/* Nodes List */}
-              <div className="flex flex-col gap-6 relative z-10">
-                {processSteps.map((step, idx) => {
-                  const isCompleted = idx < activeProcessStep;
-                  const isActive = idx === activeProcessStep;
-
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => setActiveProcessStep(idx)}
-                      className="flex items-center gap-4 text-left focus:outline-none w-full"
-                    >
-                      {/* Circle */}
-                      <div className={`w-8 h-8 rounded-full border shrink-0 flex items-center justify-center font-sans text-xs font-bold transition-all duration-500 shadow-sm ${
-                        isCompleted 
-                          ? "bg-action-green border-action-green text-white" 
-                          : isActive 
-                            ? "bg-white border-action-green text-action-green scale-105 ring-2 ring-soft-green" 
-                            : "bg-white border-black/[0.08] text-text-muted"
-                      }`}>
-                        {isCompleted ? (
-                          <Check className="w-4 h-4 text-white stroke-[3px]" />
-                        ) : (
-                          <span>{idx + 1}</span>
-                        )}
-                      </div>
-                      
-                      {/* Label */}
-                      <div className="flex flex-col">
-                        <span className={`text-xs font-bold transition-colors duration-300 ${
-                          isActive ? "text-action-green" : "text-deep-forest/70"
-                        }`}>
-                          {step.title}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Active Step Panel (Grid Content) */}
-          <div 
-            className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center bg-white border border-black/[0.06] rounded-2xl p-6 sm:p-8 md:p-10 shadow-[0_1px_2px_rgba(0,0,0,0.03),0_8px_24px_rgba(0,0,0,0.06)]"
-            onMouseEnter={() => setIsHoveredProcess(true)}
-            onMouseLeave={() => setIsHoveredProcess(false)}
-          >
-            {/* Active Left: Detailed specs card */}
-            <div className="lg:col-span-7 flex flex-col justify-center">
-              {/* Step indicator */}
-              <span className="text-[10px] font-bold text-action-green tracking-wider uppercase mb-2 block">
-                Process Stage 0{activeProcessStep + 1} of 06
-              </span>
-              
-              <h3 className="font-display font-normal text-3xl sm:text-4xl text-deep-forest leading-[1.1] tracking-tight mb-4">
-                {processSteps[activeProcessStep].title}
-              </h3>
-              
-              <p className="text-text-muted text-sm leading-relaxed mb-6 font-medium max-w-xl">
-                {processSteps[activeProcessStep].description}
-              </p>
-
-              {/* Specs Table */}
-              <div className="border-t border-black/[0.06] pt-4">
-                <span className="text-[10px] font-bold text-deep-forest uppercase tracking-wider block mb-3">
-                  B2B Specifications
-                </span>
-                <div className="grid grid-cols-3 gap-4">
-                  {processSteps[activeProcessStep].details.map((detail, dIdx) => (
-                    <div key={dIdx} className="bg-ceramic-beige/45 rounded-xl p-3 border border-black/[0.03] shadow-[0_1px_2px_rgba(0,0,0,0.01)]">
-                      <span className="text-[9px] font-semibold text-text-muted block uppercase tracking-wider mb-1">
-                        {detail.label}
-                      </span>
-                      <span className="text-xs font-bold text-deep-forest block">
-                        {detail.value}
-                      </span>
+                      </h4>
+                      <p className="text-xs text-text-muted leading-relaxed font-medium max-w-xl mt-0.5">
+                        {step.description}
+                      </p>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Active Right: Clean image display */}
-            <div className="lg:col-span-5 relative h-[280px] sm:h-[320px] rounded-xl overflow-hidden border border-black/[0.06] bg-ceramic-beige shadow-inner">
-              {processSteps.map((step, idx) => (
-                <img
-                  key={idx}
-                  src={step.image}
-                  alt={step.title}
-                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
-                    idx === activeProcessStep ? "opacity-100 z-10 scale-100" : "opacity-0 z-0 scale-95 pointer-events-none"
-                  }`}
-                />
-              ))}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent pointer-events-none z-20" />
+            {/* Right Column: Visual Sourcing Route Focus (Cross-fading slideshow) */}
+            <div className="lg:col-span-5 relative self-stretch min-h-[450px] lg:min-h-0">
+              <div className="absolute inset-0 w-full h-full rounded-2xl overflow-hidden border border-black/6 bg-ceramic-beige shadow-md">
+                {processSteps.map((step, idx) => (
+                  <img
+                    key={idx}
+                    src={step.image}
+                    alt={step.title}
+                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
+                      activeProcessStep === idx ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                    }`}
+                  />
+                ))}
+                <div className="absolute inset-0 bg-linear-to-t from-black/45 via-transparent to-transparent pointer-events-none z-20" />
+              </div>
             </div>
 
           </div>
 
         </div>
       </section>
+
+      {/* 7. Contact / RFQ Section */}
+      <section id="rfq" className="py-24 bg-warm-cream text-text-strong font-sans border-t border-black/4">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-10 grid lg:grid-cols-12 gap-16 items-start">
+          
+          {/* Left Column: Sourcing Desk Copy */}
+          <div className="lg:col-span-5 flex flex-col justify-center">
+            <span className="text-xs font-bold text-export-green tracking-wider uppercase mb-3 block font-sans">
+              Direct Export Desk
+            </span>
+            <h2 className="font-display font-normal text-3xl sm:text-4xl text-deep-forest leading-[1.05] tracking-[-0.04em] mb-4">
+              Partner with Seedicon
+            </h2>
+            <p className="text-text-muted text-sm leading-relaxed mb-8 font-medium">
+              We build trade supply chains for global B2B buyers. Submit your parameters, and our trade officers will compile pricing and logistics details within 24 hours.
+            </p>
+            
+            <div className="border-t border-black/6 pt-6 text-xs text-text-muted space-y-1">
+              <div>Email sourcing desk: <strong className="text-deep-forest">export@seedicon.com</strong></div>
+              <div>B2B trade hotline: <strong className="text-deep-forest">+91 (80) 4920-5830</strong></div>
+            </div>
+          </div>
+
+          {/* Right Column: Premium RFQ Form Card */}
+          <div className="lg:col-span-7 w-full">
+            <div className="bg-white rounded-2xl border border-black/6 p-6 sm:p-8 md:p-10 shadow-[0_1px_2px_rgba(0,0,0,0.06),0_8px_24px_rgba(0,0,0,0.06)] min-h-[420px] flex flex-col justify-center transition-all duration-500">
+              {rfqSubmitted ? (
+                /* Success Screen */
+                <div className="text-center py-6 flex flex-col items-center animate-fade-in">
+                  <div className="w-16 h-16 rounded-full bg-soft-green flex items-center justify-center mb-6 shadow-sm">
+                    <Check className="w-8 h-8 text-export-green stroke-[3px]" />
+                  </div>
+                  <h3 className="font-display font-normal text-3xl text-deep-forest mb-4">
+                    RFQ submitted
+                  </h3>
+                  <p className="text-text-muted text-sm leading-relaxed max-w-md mx-auto mb-8 font-medium">
+                    Thank you! Our B2B export desk has received your sourcing specifications. A trade officer will compile customized container pricing specs and reach out via email or your phone number within 24 hours.
+                  </p>
+                  <button
+                    onClick={() => {
+                      setRfqName('');
+                      setRfqEmail('');
+                      setRfqPhone('');
+                      setRfqLocation('');
+                      setRfqCoffeeType('');
+                      setRfqQuantity('');
+                      setRfqCountry('');
+                      setRfqSubmitted(false);
+                    }}
+                    className="bg-action-green hover:bg-export-green text-white text-xs font-bold px-6 py-3 rounded-full transition-all duration-300 transform active:scale-97 cursor-pointer"
+                  >
+                    Submit another sourcing RFQ
+                  </button>
+                </div>
+              ) : (
+                /* RFQ Form */
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    setRfqSubmitted(true);
+                  }}
+                  className="space-y-5"
+                >
+                  <h3 className="text-base font-bold text-deep-forest uppercase tracking-wider mb-2 font-sans">
+                    Request sourcing quote
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    {/* Contact Person */}
+                    <div>
+                      <label className="text-[10px] font-bold text-deep-forest block mb-1.5 uppercase tracking-wider">
+                        Contact person
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={rfqName}
+                        onChange={(e) => setRfqName(e.target.value)}
+                        placeholder="John Doe"
+                        className="w-full bg-white border border-black/14 rounded-xl px-4 py-3 text-xs font-sans focus:outline-none focus:border-action-green focus:ring-2 focus:ring-soft-green transition-all"
+                      />
+                    </div>
+
+                    {/* Email */}
+                    <div>
+                      <label className="text-[10px] font-bold text-deep-forest block mb-1.5 uppercase tracking-wider">
+                        Email address
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={rfqEmail}
+                        onChange={(e) => setRfqEmail(e.target.value)}
+                        placeholder="buyer@roaster.com"
+                        className="w-full bg-white border border-black/14 rounded-xl px-4 py-3 text-xs font-sans focus:outline-none focus:border-action-green focus:ring-2 focus:ring-soft-green transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    {/* Phone Number */}
+                    <div>
+                      <label className="text-[10px] font-bold text-deep-forest block mb-1.5 uppercase tracking-wider">
+                        Phone number
+                      </label>
+                      <input
+                        type="tel"
+                        required
+                        value={rfqPhone}
+                        onChange={(e) => setRfqPhone(e.target.value)}
+                        placeholder="+1 (555) 123-4567"
+                        className="w-full bg-white border border-black/14 rounded-xl px-4 py-3 text-xs font-sans focus:outline-none focus:border-action-green focus:ring-2 focus:ring-soft-green transition-all"
+                      />
+                    </div>
+
+                    {/* Your country */}
+                    <div>
+                      <label className="text-[10px] font-bold text-deep-forest block mb-1.5 uppercase tracking-wider">
+                        Your country
+                      </label>
+                      <div className="relative">
+                        <select
+                          required
+                          value={rfqLocation}
+                          onChange={(e) => setRfqLocation(e.target.value)}
+                          className="w-full bg-white border border-black/14 rounded-xl pl-4 pr-10 py-3 text-xs font-sans appearance-none focus:outline-none focus:border-action-green focus:ring-2 focus:ring-soft-green transition-all cursor-pointer"
+                        >
+                          <option value="" disabled>Select your country...</option>
+                          <option value="United States">United States</option>
+                          <option value="Germany">Germany</option>
+                          <option value="Japan">Japan</option>
+                          <option value="Italy">Italy</option>
+                          <option value="Belgium">Belgium</option>
+                          <option value="South Korea">South Korea</option>
+                          <option value="United Kingdom">United Kingdom</option>
+                          <option value="India">India</option>
+                          <option value="Other">Other / International</option>
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-deep-forest/60">
+                          <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    {/* Coffee Type */}
+                    <div>
+                      <label className="text-[10px] font-bold text-deep-forest block mb-1.5 uppercase tracking-wider">
+                        Coffee type
+                      </label>
+                      <div className="relative">
+                        <select
+                          required
+                          value={rfqCoffeeType}
+                          onChange={(e) => setRfqCoffeeType(e.target.value)}
+                          className="w-full bg-white border border-black/14 rounded-xl pl-4 pr-10 py-3 text-xs font-sans appearance-none focus:outline-none focus:border-action-green focus:ring-2 focus:ring-soft-green transition-all cursor-pointer"
+                        >
+                          <option value="" disabled>Select coffee type...</option>
+                          <option value="Arabica Coffee">Arabica Coffee</option>
+                          <option value="Robusta Coffee">Robusta Coffee</option>
+                          <option value="Specialty Coffee">Specialty Coffee</option>
+                          <option value="Green Coffee Beans">Green Coffee Beans</option>
+                          <option value="Roasted Coffee">Roasted Coffee</option>
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-deep-forest/60">
+                          <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Quantity Required */}
+                    <div>
+                      <label className="text-[10px] font-bold text-deep-forest block mb-1.5 uppercase tracking-wider">
+                        Quantity required
+                      </label>
+                      <div className="relative">
+                        <select
+                          required
+                          value={rfqQuantity}
+                          onChange={(e) => setRfqQuantity(e.target.value)}
+                          className="w-full bg-white border border-black/14 rounded-xl pl-4 pr-10 py-3 text-xs font-sans appearance-none focus:outline-none focus:border-action-green focus:ring-2 focus:ring-soft-green transition-all cursor-pointer"
+                        >
+                          <option value="" disabled>Select target volume...</option>
+                          <option value="Trial Batch (300kg - 1 MT)">Trial Batch (300kg - 1 MT)</option>
+                          <option value="LCL Cargo (1 MT - 5 MT)">LCL Cargo (1 MT - 5 MT)</option>
+                          <option value="5 MT - 10 MT">5 MT - 10 MT</option>
+                          <option value="FCL 20ft Container (20 MT)">FCL 20ft Container (20 MT)</option>
+                          <option value="Multi-Container Supply">Multi-Container Supply</option>
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-deep-forest/60">
+                          <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Destination country */}
+                  <div>
+                    <label className="text-[10px] font-bold text-deep-forest block mb-1.5 uppercase tracking-wider">
+                      Destination country
+                    </label>
+                    <div className="relative">
+                      <select
+                        required
+                        value={rfqCountry}
+                        onChange={(e) => setRfqCountry(e.target.value)}
+                        className="w-full bg-white border border-black/14 rounded-xl pl-4 pr-10 py-3 text-xs font-sans appearance-none focus:outline-none focus:border-action-green focus:ring-2 focus:ring-soft-green transition-all cursor-pointer"
+                      >
+                        <option value="" disabled>Select destination country...</option>
+                        <option value="United States">United States</option>
+                        <option value="Germany">Germany</option>
+                        <option value="Japan">Japan</option>
+                        <option value="Italy">Italy</option>
+                        <option value="Belgium">Belgium</option>
+                        <option value="South Korea">South Korea</option>
+                        <option value="United Kingdom">United Kingdom</option>
+                        <option value="Other">Other / International</option>
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-deep-forest/60">
+                        <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                          <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      className="w-full bg-action-green hover:bg-export-green text-white text-xs font-bold py-3.5 px-6 rounded-full transition-all duration-300 transform active:scale-97 cursor-pointer"
+                    >
+                      Submit RFQ
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-deep-forest text-white/90 py-16 border-t border-white/10 font-sans">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-10">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+            
+            {/* Col 1: Brand */}
+            <div className="flex flex-col gap-4">
+              <span className="text-xl font-normal tracking-tight font-display">Seedicon<sup className="text-[10px] font-normal">TM</sup></span>
+              <p className="text-xs text-white/60 leading-relaxed font-medium">
+                Direct B2B estate-to-roaster supply chain pipelines for premium Indian Arabica, Robusta, and specialty coffee beans.
+              </p>
+            </div>
+            
+            {/* Col 2: Navigation */}
+            <div className="flex flex-col gap-3">
+              <span className="text-xs font-bold text-white uppercase tracking-wider">B2B Navigation</span>
+              <div className="flex flex-col gap-2 text-xs text-white/60 font-medium">
+                <a href="#about" className="hover:text-white transition-colors">About Sourcing</a>
+                <a href="#products" className="hover:text-white transition-colors">Our Coffee Inventory</a>
+                <a href="#sourcing" className="hover:text-white transition-colors">Origin Terroirs</a>
+                <a href="#quality" className="hover:text-white transition-colors">Quality Assurance</a>
+                <a href="#process" className="hover:text-white transition-colors">Export Process Flow</a>
+              </div>
+            </div>
+
+            {/* Col 3: Export Desk */}
+            <div className="flex flex-col gap-3">
+              <span className="text-xs font-bold text-white uppercase tracking-wider">Export Desk</span>
+              <div className="flex flex-col gap-2 text-xs text-white/60 font-medium">
+                <span>Direct Line: +91 (80) 4920-5830</span>
+                <span>Office: Bengaluru, Karnataka, India</span>
+                <span>Email: export@seedicon.com</span>
+              </div>
+            </div>
+
+            {/* Col 4: Trust Credentials */}
+            <div className="flex flex-col gap-3">
+              <span className="text-xs font-bold text-white uppercase tracking-wider">B2B Compliance</span>
+              <p className="text-xs text-white/60 leading-relaxed font-medium">
+                Licensed under APEDA, registered with FSSAI, and fully certified for organic and fair trade international cargo clearance.
+              </p>
+            </div>
+
+          </div>
+
+          {/* Bottom Footer */}
+          <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-white/40">
+            <span>© {new Date().getFullYear()} Seedicon Coffee Exports. All B2B rights reserved.</span>
+            <div className="flex gap-6">
+              <a href="#terms" className="hover:text-white/60 transition-colors">Terms of Trade</a>
+              <a href="#privacy" className="hover:text-white/60 transition-colors">Privacy Policy</a>
+            </div>
+          </div>
+
+        </div>
+      </footer>
     </div>
   );
 }

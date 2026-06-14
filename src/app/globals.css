@@ -1,3 +1,5 @@
+@import "../styles/fonts.css";
+@import "../styles/theme.css";
 @import "tailwindcss";
 
 html {
@@ -10,8 +12,8 @@ html {
 }
 
 @theme {
-  --font-sans: var(--font-manrope), system-ui, -apple-system, sans-serif;
-  --font-display: var(--font-instrument-serif), Georgia, serif;
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-instrument-serif), serif;
   
   /* Color Palette - Seedicon Coffee Exports */
   --color-deep-forest: #1e3932;
@@ -20,7 +22,7 @@ html {
   --color-soft-green: #d4e9e2;
   
   --color-warm-cream: #f2f0eb;
-  --color-ceramic-beige: #edebe9;
+  --color-ceramic-beige: #dfe2db;
   
   --color-quality-gold: #cba258;
   --color-gold-wash: #faf6ee;
