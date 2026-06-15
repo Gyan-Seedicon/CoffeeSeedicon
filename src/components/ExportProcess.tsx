@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import ExportProcessMobile from './ExportProcessMobile';
 
 const processSteps = [
   {
@@ -93,7 +94,13 @@ export default function ExportProcess() {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-stretch">
+        {/* Mobile View */}
+        <div className="block lg:hidden">
+          <ExportProcessMobile steps={processSteps} />
+        </div>
+
+        {/* Desktop View */}
+        <div className="hidden lg:grid lg:grid-cols-12 gap-12 lg:gap-16 items-stretch">
 
           {/* Left Column: Timeline Steps */}
           <div className="lg:col-span-7 flex flex-col justify-between py-1">

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import QualityQAMobile from './QualityQAMobile';
 
 const qcSteps = [
   {
@@ -86,7 +87,13 @@ export default function QualityQA() {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-stretch">
+        {/* Mobile QA View */}
+        <div className="block lg:hidden">
+          <QualityQAMobile steps={qcSteps} />
+        </div>
+
+        {/* Desktop QA View */}
+        <div className="hidden lg:grid lg:grid-cols-12 gap-12 lg:gap-16 items-stretch">
 
           {/* Left Column: Visual Laboratory QC Focus (Cross-fading slideshow) */}
           <div className="lg:col-span-5 relative self-stretch min-h-[450px] lg:min-h-0">
