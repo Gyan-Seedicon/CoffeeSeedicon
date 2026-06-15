@@ -67,17 +67,57 @@ export default function Navbar() {
 
           {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center gap-8">
-            <a href="#about" onClick={(e) => scrollToSection(e, '#about')} className="text-sm font-semibold text-espresso-dark transition-colors hover:text-espresso-dark/80">
-              Sourcing
+            <a 
+              href="#" 
+              onClick={(e) => { 
+                e.preventDefault(); 
+                const lenis = (window as any).lenis; 
+                if (lenis) lenis.scrollTo(0); 
+                else window.scrollTo({ top: 0, behavior: 'smooth' }); 
+              }} 
+              className="text-sm font-semibold text-espresso-dark transition-colors hover:text-espresso-dark/80"
+            >
+              Trade
             </a>
-            <a href="#products" onClick={(e) => scrollToSection(e, '#products')} className="text-sm font-semibold text-espresso-dark/70 transition-colors hover:text-espresso-dark">
-              Coffee Products
+            <a 
+              href="https://www.seedicon.com/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-sm font-semibold text-espresso-dark/70 transition-colors hover:text-espresso-dark"
+            >
+              Capital
             </a>
-            <a href="#quality" onClick={(e) => scrollToSection(e, '#quality')} className="text-sm font-semibold text-espresso-dark/70 transition-colors hover:text-espresso-dark">
-              Quality QA
+            <a 
+              href="https://www.deckwale.com/?type=Presentation" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-sm font-semibold text-espresso-dark/70 transition-colors hover:text-espresso-dark"
+            >
+              Deckwale
             </a>
-            <a href="#process" onClick={(e) => scrollToSection(e, '#process')} className="text-sm font-semibold text-espresso-dark/70 transition-colors hover:text-espresso-dark">
-              Export Process
+            <a 
+              href="https://watch.seedicon.com/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-sm font-semibold text-espresso-dark/70 transition-colors hover:text-espresso-dark"
+            >
+              Watch
+            </a>
+            <a 
+              href="https://www.seedicon.com/partners" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-sm font-semibold text-espresso-dark/70 transition-colors hover:text-espresso-dark"
+            >
+              Partner with us
+            </a>
+            <a 
+              href="https://www.seedicon.com/insights" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-sm font-semibold text-espresso-dark/70 transition-colors hover:text-espresso-dark"
+            >
+              Insights
             </a>
           </div>
 
@@ -117,17 +157,63 @@ export default function Navbar() {
       >
         <div className="flex flex-col h-full pt-16 px-8 pb-8">
           <div className="flex flex-col gap-1">
-            <a href="#about" onClick={(e) => { setMenuOpen(false); scrollToSection(e, '#about'); }} className="text-xl font-normal text-black py-4 border-b border-black/5 transition-colors">
-              Sourcing
+            <a 
+              href="#" 
+              onClick={(e) => { 
+                setMenuOpen(false); 
+                e.preventDefault(); 
+                const lenis = (window as any).lenis; 
+                if (lenis) lenis.scrollTo(0); 
+                else window.scrollTo({ top: 0, behavior: 'smooth' }); 
+              }} 
+              className="text-xl font-normal text-black py-4 border-b border-black/5 transition-colors"
+            >
+              Trade
             </a>
-            <a href="#products" onClick={(e) => { setMenuOpen(false); scrollToSection(e, '#products'); }} className="text-xl font-normal text-[#6F6F6F] hover:text-black py-4 border-b border-black/5 transition-colors">
-              Coffee Products
+            <a 
+              href="https://www.seedicon.com/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              onClick={() => setMenuOpen(false)} 
+              className="text-xl font-normal text-[#6F6F6F] hover:text-black py-4 border-b border-black/5 transition-colors"
+            >
+              Capital
             </a>
-            <a href="#quality" onClick={(e) => { setMenuOpen(false); scrollToSection(e, '#quality'); }} className="text-xl font-normal text-[#6F6F6F] hover:text-black py-4 border-b border-black/5 transition-colors">
-              Quality QA
+            <a 
+              href="https://www.deckwale.com/?type=Presentation" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              onClick={() => setMenuOpen(false)} 
+              className="text-xl font-normal text-[#6F6F6F] hover:text-black py-4 border-b border-black/5 transition-colors"
+            >
+              Deckwale
             </a>
-            <a href="#process" onClick={(e) => { setMenuOpen(false); scrollToSection(e, '#process'); }} className="text-xl font-normal text-[#6F6F6F] hover:text-black py-4 border-b border-black/5 transition-colors">
-              Export Process
+            <a 
+              href="https://watch.seedicon.com/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              onClick={() => setMenuOpen(false)} 
+              className="text-xl font-normal text-[#6F6F6F] hover:text-black py-4 border-b border-black/5 transition-colors"
+            >
+              Watch
+            </a>
+            <a 
+              href="https://www.seedicon.com/partners" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              onClick={() => setMenuOpen(false)} 
+              className="text-xl font-normal text-[#6F6F6F] hover:text-black py-4 border-b border-black/5 transition-colors"
+            >
+              Partner with us
+            </a>
+            <a 
+              href="https://www.seedicon.com/insights" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              onClick={() => setMenuOpen(false)} 
+              className="text-xl font-normal text-[#6F6F6F] hover:text-black py-4 border-b border-black/5 transition-colors"
+            >
+              Insights
             </a>
           </div>
 

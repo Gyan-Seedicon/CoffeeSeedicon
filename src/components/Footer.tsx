@@ -5,7 +5,7 @@ export default function Footer() {
   return (
     <footer className="bg-espresso-dark text-white/90 py-16 border-t border-white/10 font-sans">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
 
           {/* Col 1: Brand */}
           <div className="flex flex-col gap-4">
@@ -25,6 +25,66 @@ export default function Footer() {
 
           {/* Col 2: Navigation */}
           <div className="flex flex-col gap-3">
+            <span className="text-xs font-bold text-white uppercase tracking-wider">Seedicon Umbrella</span>
+            <div className="flex flex-col gap-2 text-xs text-white/60 font-medium">
+              <a 
+                href="#" 
+                onClick={(e) => { 
+                  e.preventDefault(); 
+                  const lenis = (window as any).lenis; 
+                  if (lenis) lenis.scrollTo(0); 
+                  else window.scrollTo({ top: 0, behavior: 'smooth' }); 
+                }} 
+                className="hover:text-white transition-colors"
+              >
+                Trade
+              </a>
+              <a 
+                href="https://www.seedicon.com/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-white transition-colors"
+              >
+                Capital
+              </a>
+              <a 
+                href="https://www.deckwale.com/?type=Presentation" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-white transition-colors"
+              >
+                Deckwale
+              </a>
+              <a 
+                href="https://watch.seedicon.com/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-white transition-colors"
+              >
+                Watch
+              </a>
+              <a 
+                href="https://www.seedicon.com/partners" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-white transition-colors"
+              >
+                Partner with us
+              </a>
+              <a 
+                href="https://www.seedicon.com/insights" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-white transition-colors"
+              >
+                Insights
+              </a>
+            </div>
+          </div>
+
+          {/* Col 3: Sections */}
+          <div className="flex flex-col gap-3">
+            <span className="text-xs font-bold text-white uppercase tracking-wider">Seedicon Coffee</span>
             <div className="flex flex-col gap-2 text-xs text-white/60 font-medium">
               <a href="#about" onClick={(e) => scrollToSection(e, '#about')} className="hover:text-white transition-colors">About Sourcing</a>
               <a href="#products" onClick={(e) => scrollToSection(e, '#products')} className="hover:text-white transition-colors">Our Coffee Inventory</a>
