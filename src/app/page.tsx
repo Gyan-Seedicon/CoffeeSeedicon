@@ -4,8 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { LogIn, UserPlus, Play, Sparkles, Menu, X, ArrowRight, Globe, Sprout, Zap, Award, Flame, Check } from 'lucide-react';
 import Lenis from 'lenis';
 
-const BG_VIDEO =
-  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_083109_283f3553-e28f-428b-a723-d639c617eb2b.mp4';
+const BG_VIDEO = '/videos/15381512_1920_1080_25fps.mp4';
 
 const processSteps = [
   {
@@ -70,6 +69,30 @@ const processSteps = [
   }
 ];
 
+const farmSlides = [
+  {
+    step: "01",
+    tag: "Plucking",
+    title: "Hand-Plucking Peak Ripeness",
+    description: "Selective hand-plucking is a labor of patience and precision. Skilled farmers selectively harvest only the cherry-red coffee fruit under forest canopies, ensuring the foundation of our green coffee meets premium specifications.",
+    video: "/videos/plukingcoffee.mp4"
+  },
+  {
+    step: "02",
+    tag: "Processing",
+    title: "Locking In Pure Terroir Profiles",
+    description: "After plucking, cherries are washed or naturally processed to separate the beans from the fruit. Meticulous sorting and moisture control ensure the green beans retain their distinct regional characteristics prior to container shipping.",
+    video: "/videos/processing-coffee.mp4"
+  },
+  {
+    step: "03",
+    tag: "Transport",
+    title: "Guarded Transit and Sourcing Integrity",
+    description: "From estate gates to container freight, green coffee is packed in protective multi-layer GrainPro liners and stenciled jute sacks. We safeguard humidity levels to guarantee freshness for international roasters.",
+    video: "/videos/transport-coffee.mp4"
+  }
+];
+
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -85,21 +108,23 @@ export default function Home() {
       if (!video) return;
       const currentTime = video.currentTime;
       const duration = video.duration;
+      const wrapper = video.parentElement;
 
-      if (duration > 0) {
+      if (duration > 0 && wrapper) {
         if (currentTime < 0.5) {
-          video.style.opacity = (currentTime / 0.5).toString();
+          wrapper.style.opacity = (currentTime / 0.5).toString();
         } else if (duration - currentTime < 0.5) {
-          video.style.opacity = Math.max(0, (duration - currentTime) / 0.5).toString();
+          wrapper.style.opacity = Math.max(0, (duration - currentTime) / 0.5).toString();
         } else {
-          video.style.opacity = "1";
+          wrapper.style.opacity = "1";
         }
       }
       animationFrameId = requestAnimationFrame(checkLoop);
     };
 
     const handleEnded = () => {
-      video.style.opacity = "0";
+      const wrapper = video.parentElement;
+      if (wrapper) wrapper.style.opacity = "0";
       video.pause();
       delayTimeoutId = setTimeout(() => {
         video.currentTime = 0;
@@ -198,6 +223,21 @@ export default function Home() {
   // Sourcing mobile toggle state
   const [activeSourcingCard, setActiveSourcingCard] = useState<number | null>(null);
 
+  // Farm sourcing video carousel state
+  const [activeFarmSlide, setActiveFarmSlide] = useState(0);
+
+  // About Us section carousel state
+  const [aboutSlide, setAboutSlide] = useState(1);
+
+  // Autoplay timer sequence for About Us carousel: Video (7s) -> Image (3s) -> Video...
+  useEffect(() => {
+    const delay = aboutSlide === 1 ? 7000 : 3000;
+    const timer = setTimeout(() => {
+      setAboutSlide(aboutSlide === 1 ? 0 : 1);
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [aboutSlide]);
+
   const handleSourcingCardClick = (e: React.MouseEvent, index: number) => {
     if (window.innerWidth < 768) {
       if (activeSourcingCard !== index) {
@@ -227,44 +267,46 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-warm-cream selection:bg-soft-green selection:text-deep-forest">
       {/* Hero Section (Full Screen) */}
-      <section className="relative w-full h-screen overflow-hidden font-sans bg-white">
+      <section className="relative w-full h-screen overflow-hidden font-sans bg-espresso-dark">
         {/* Cinematic Video Background */}
-        <div className="absolute inset-x-0 bottom-0 top-[300px] z-0 overflow-hidden">
-          <video
-            ref={videoRef}
-            className="w-full h-full object-cover opacity-0 pointer-events-none"
-            muted
-            playsInline
-            preload="auto"
-          />
-          {/* Top blend gradient to match white background */}
-          <div className="absolute top-0 left-0 right-0 h-32 bg-linear-to-b from-white to-transparent z-10 pointer-events-none" />
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <div className="w-full h-full relative opacity-0 pointer-events-none transition-opacity duration-300">
+            <video
+              ref={videoRef}
+              className="w-full h-full object-cover"
+              muted
+              playsInline
+              preload="auto"
+            />
+            {/* Black low opacity overlay */}
+            <div className="absolute inset-0 bg-black/45 pointer-events-none z-[1]" />
+          </div>
           {/* Bottom blend gradient to match next section background (ceramic-beige) */}
-          <div className="absolute bottom-0 left-0 right-0 h-64 bg-linear-to-t from-ceramic-beige to-transparent z-10 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 right-0 h-48 z-10 pointer-events-none" />
         </div>
 
         {/* Navigation Bar */}
-        <nav className="relative z-10 px-8 py-6 max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2 text-black">
+        <nav className="relative z-10 px-8 h-20 max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2 text-white">
             <img 
               src="/images/wordmark.png" 
               alt="Seedicon Coffee Exports" 
-              className="h-6 w-auto object-contain" 
+              className="h-6 w-auto object-contain brightness-0 invert" 
             />
           </div>
 
           {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center gap-8">
-            <a href="#about" className="text-sm font-medium text-black transition-colors hover:text-black">
+            <a href="#about" className="text-sm font-medium text-white transition-colors hover:text-white/80">
               Sourcing
             </a>
-            <a href="#products" className="text-sm font-medium text-[#6F6F6F] transition-colors hover:text-black">
+            <a href="#products" className="text-sm font-medium text-white/70 transition-colors hover:text-white">
               Coffee Products
             </a>
-            <a href="#quality" className="text-sm font-medium text-[#6F6F6F] transition-colors hover:text-black">
+            <a href="#quality" className="text-sm font-medium text-white/70 transition-colors hover:text-white">
               Quality QA
             </a>
-            <a href="#process" className="text-sm font-medium text-[#6F6F6F] transition-colors hover:text-black">
+            <a href="#process" className="text-sm font-medium text-white/70 transition-colors hover:text-white">
               Export Process
             </a>
           </div>
@@ -282,7 +324,7 @@ export default function Home() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMenuOpen((v) => !v)}
-            className="md:hidden relative flex items-center justify-center w-10 h-10 rounded-full border border-black/10 bg-transparent text-black hover:bg-black/5 hover:border-black/20 transition-all duration-300 cursor-pointer"
+            className="md:hidden relative flex items-center justify-center w-10 h-10 rounded-full border border-white/20 bg-transparent text-white hover:bg-white/10 hover:border-white/20 transition-all duration-300 cursor-pointer"
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
           >
@@ -337,21 +379,20 @@ export default function Home() {
 
         {/* Hero Section Copy */}
         <div
-          className="relative z-10 flex flex-col items-center justify-center text-center px-6"
-          style={{ paddingTop: 'calc(8rem - 75px)', paddingBottom: '10rem' }}
+          className="relative z-10 flex flex-col items-center justify-center h-full -mt-20 text-center px-6"
         >
           <h1
-            className="font-normal leading-[0.95] text-5xl sm:text-6xl md:text-7xl max-w-7xl font-display text-black animate-fade-rise"
+            className="font-normal leading-[0.95] text-5xl sm:text-6xl md:text-7xl max-w-7xl font-display text-white animate-fade-rise"
             style={{ letterSpacing: '-2.46px' }}
           >
-            <span className="bg-linear-to-r from-coffee-roast via-latte-accent to-espresso-dark bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-white via-latte-accent to-white bg-clip-text text-transparent">
               Premium Indian Coffee
             </span>{' '}
-            <span className="text-[#6F6F6F] italic">Connecting</span>
+            <span className="text-latte-accent italic">Connecting</span>
             <br className="hidden sm:block" />{' '}
-            <span className="text-[#6F6F6F] italic">Global Markets</span>
+            <span className="text-latte-accent italic">Global Markets</span>
           </h1>
-          <p className="mt-8 text-[#6F6F6F] text-base sm:text-lg leading-relaxed max-w-2xl animate-fade-rise-delay">
+          <p className="mt-8 text-text-white-soft text-base sm:text-lg leading-relaxed max-w-2xl animate-fade-rise-delay">
             Sourcing and exporting top-grade Arabica, Robusta, and specialty coffee beans directly from India's finest estates to global roasters.
           </p>
           <div>
@@ -359,7 +400,7 @@ export default function Home() {
               href="#rfq"
               className="bg-linear-to-r from-deep-forest to-export-green hover:scale-103 hover:shadow-lg text-white text-sm sm:text-base font-semibold px-8 py-3.5 sm:px-14 sm:py-5 rounded-full transition-all duration-300 inline-block mt-12 animate-fade-rise-delay-2 shadow-md shadow-deep-forest/20"
             >
-              Get Export Pricing
+              Get Pricing
             </a>
           </div>
         </div>
@@ -390,26 +431,67 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Column 2: Coffee estate photo panel */}
+          {/* Column 2: Coffee estate photo/video panel carousel */}
           <div className="lg:col-span-5">
             <div className="relative group">
               <div className="relative aspect-4/5 w-full rounded-2xl overflow-hidden border border-black/6 bg-ceramic-beige">
+                
+                {/* Slide 1: Image */}
                 <img
                   src="/images/about-plantation.png"
                   alt="Lush coffee estate under forest canopy in Coorg, India"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ${
+                    aboutSlide === 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-105 pointer-events-none'
+                  }`}
                 />
+                
+                {/* Slide 2: Video */}
+                <div className={`absolute inset-0 w-full h-full transition-all duration-700 ${
+                  aboutSlide === 1 ? 'opacity-100 scale-100' : 'opacity-0 scale-105 pointer-events-none'
+                }`}>
+                  <video
+                    src="/videos/collecting-coffee.mp4"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
                 <div className="absolute inset-0 bg-linear-to-t from-black/45 via-black/10 to-transparent pointer-events-none" />
 
+                {/* Carousel Navigation Dots */}
+                <div className="absolute top-4 right-4 flex gap-1.5 z-10 bg-black/40 backdrop-blur-md px-2.5 py-2 rounded-full border border-white/10 shadow-sm">
+                  <button
+                    onClick={() => setAboutSlide(0)}
+                    className={`w-1.5 h-1.5 rounded-full transition-all cursor-pointer ${
+                      aboutSlide === 0 ? 'bg-white w-3.5' : 'bg-white/45 hover:bg-white/70'
+                    }`}
+                    aria-label="Show image"
+                  />
+                  <button
+                    onClick={() => setAboutSlide(1)}
+                    className={`w-1.5 h-1.5 rounded-full transition-all cursor-pointer ${
+                      aboutSlide === 1 ? 'bg-white w-3.5' : 'bg-white/45 hover:bg-white/70'
+                    }`}
+                    aria-label="Show video"
+                  />
+                </div>
+
                 {/* Floating overlay badge on image */}
-                <div className="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur-md p-4 rounded-xl border border-white/40 flex items-center justify-between shadow-sm">
+                <div className="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur-md p-4 rounded-xl border border-white/40 flex items-center justify-between shadow-sm z-10">
                   <div>
                     <span className="text-[10px] font-bold text-export-green tracking-wider uppercase block">Sourcing Origin</span>
-                    <span className="text-base font-bold text-deep-forest block">Coorg, Karnataka</span>
-                    <span className="text-xs text-text-muted block">Western Ghats • India</span>
+                    <span className="text-base font-bold text-deep-forest block">
+                      {aboutSlide === 0 ? 'Coorg, Karnataka' : 'Estate Harvesting'}
+                    </span>
+                    <span className="text-xs text-text-muted block">
+                      {aboutSlide === 0 ? 'Western Ghats • India' : 'Collecting Coffee Cherries'}
+                    </span>
                   </div>
                   <div className="bg-soft-green text-export-green text-xs font-bold px-3 py-1.5 rounded-full">
-                    1,100m Altitude
+                    {aboutSlide === 0 ? '1,100m Altitude' : 'Live Footage'}
                   </div>
                 </div>
               </div>
@@ -417,6 +499,104 @@ export default function Home() {
           </div>
 
         </div>
+      </section>
+
+      {/* Cinematic Farm Sourcing Carousel Section */}
+      <section className="bg-espresso-dark text-white font-sans overflow-hidden border-t border-b border-white/5 relative w-full grid lg:grid-cols-12 items-stretch">
+        
+        {/* Left Column: Interactive Storytelling */}
+        <div className="lg:col-span-6 flex flex-col justify-center py-20 px-4 sm:px-8 lg:pl-12 lg:pr-8 xl:pl-[calc((100vw-1200px)/2+1rem)] order-2 lg:order-1">
+          
+          {/* Section Header */}
+          <div className="mb-6">
+            <span className="text-[10px] font-bold text-latte-accent tracking-wider uppercase mb-1 block">
+              The Seed to Container Journey
+            </span>
+            <h2 className="font-display font-normal text-3xl sm:text-4xl text-white tracking-[-0.02em] leading-tight">
+              Farming & Processing Story
+            </h2>
+          </div>
+
+          {/* Step Selector Tab Interface */}
+          <div className="flex gap-4 sm:gap-6 mb-6 border-b border-white/10 pb-4">
+            {farmSlides.map((slide, idx) => (
+              <button
+                key={idx}
+                onClick={() => setActiveFarmSlide(idx)}
+                className={`text-xs sm:text-sm font-semibold tracking-wider uppercase pb-2 transition-all duration-300 relative cursor-pointer ${
+                  idx === activeFarmSlide ? 'text-white' : 'text-white/40 hover:text-white/70'
+                }`}
+              >
+                {slide.step} / {slide.tag}
+                {idx === activeFarmSlide && (
+                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-latte-accent animate-shimmer" />
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Text Container with Transitions */}
+          <div className="min-h-[220px] sm:min-h-[180px] flex flex-col justify-center">
+            {farmSlides.map((slide, idx) => (
+              <div
+                key={idx}
+                className={`transition-all duration-500 transform ${
+                  idx === activeFarmSlide
+                    ? 'opacity-100 translate-y-0 relative'
+                    : 'opacity-0 translate-y-4 absolute pointer-events-none'
+                }`}
+              >
+                <h3 className="font-display font-normal text-3xl sm:text-4xl italic text-latte-accent mb-4 leading-tight">
+                  "{slide.title}"
+                </h3>
+                <p className="text-white/70 text-sm leading-relaxed font-light font-sans">
+                  {slide.description}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Slider Arrow Controls */}
+          <div className="flex gap-4 mt-8">
+            <button
+              onClick={() => setActiveFarmSlide((prev) => (prev - 1 + farmSlides.length) % farmSlides.length)}
+              className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white/10 hover:border-white/40 transition-all duration-300 cursor-pointer"
+              aria-label="Previous slide"
+            >
+              <ArrowRight className="w-4 h-4 rotate-180" />
+            </button>
+            <button
+              onClick={() => setActiveFarmSlide((prev) => (prev + 1) % farmSlides.length)}
+              className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white/10 hover:border-white/40 transition-all duration-300 cursor-pointer"
+              aria-label="Next slide"
+            >
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+
+        </div>
+
+        {/* Right Column: Large Video Player */}
+        <div className="lg:col-span-6 order-1 lg:order-2 self-stretch min-h-[350px] lg:min-h-[500px] xl:min-h-[600px] relative">
+          <div className="w-full h-full absolute inset-0 bg-[#0e0a08]">
+            {farmSlides.map((slide, idx) => (
+              <video
+                key={idx}
+                src={slide.video}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
+                  idx === activeFarmSlide ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
+              />
+            ))}
+            {/* Subtle vignette/overlay overlaying the video */}
+            <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-black/30 pointer-events-none" />
+          </div>
+        </div>
+
       </section>
 
       {/* 3. Coffee Products Section */}
